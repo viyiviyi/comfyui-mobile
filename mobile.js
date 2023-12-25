@@ -101,9 +101,12 @@ const ext = {
           let input = node.inputs[i];
           let outputNodes = app.graph._nodes.filter(
             (f) =>
+              f.id != node.id &&
               f.outputs &&
               f.outputs.length &&
-              f.outputs.findIndex((_f) => _f.type == input.type) != -1
+              f.outputs.findIndex((_f) =>
+                LiteGraph.isValidConnection(_f.type, input.type)
+              ) != -1
           );
           let h = 0;
           outputNodes.forEach((node) => {
@@ -131,12 +134,15 @@ const ext = {
         node.onOutputClick = (i, e) => {
           let x = e.canvasX;
           let y = e.canvasY;
-          let input = node.outputs[i];
+          let output = node.outputs[i];
           let inputNodes = app.graph._nodes.filter(
             (f) =>
+              f.id != node.id &&
               f.inputs &&
               f.inputs.length &&
-              f.inputs.findIndex((_f) => _f.type == input.type) != -1
+              f.inputs.findIndex((_f) =>
+                LiteGraph.isValidConnection(output.type, _.type)
+              ) != -1
           );
           let h = 0;
           inputNodes.forEach((node) => {
