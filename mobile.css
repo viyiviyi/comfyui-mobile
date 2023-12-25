@@ -1,0 +1,70 @@
+@media screen and (max-width: 768px) {
+  .graphdialog.rounded {
+    box-sizing: border-box;
+    width: calc(100vw - 20px);
+    left: 10px !important;
+    transform: none !important;
+  }
+  .graphdialog.rounded * {
+    transform: none !important;
+  }
+  .graphdialog.rounded input {
+    flex: 1;
+  }
+  .comfy-menu {
+    box-sizing: border-box;
+    top: auto !important;
+    bottom: -282px !important;
+    width: 100vw;
+    border-radius: 8px 8px 0 0;
+  }
+  .comfy-menu::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: 0;
+    width: 100vw;
+    height: 280px;
+  }
+  .comfy-menu:hover {
+    bottom: 0 !important;
+    transition: bottom 0.5s;
+  }
+  .comfy-menu:hover::after {
+    height: 0;
+    transition: height 0.5s cubic-bezier(1, 0, 1, 0);
+  }
+  .comfy-menu-btns button {
+    font-size: 18px;
+  }
+
+  .litegraph.litecontextmenu.litemenubar-panel {
+    box-sizing: border-box;
+    width: calc(100vw - 20px);
+    left: 10px !important;
+    top: 60px !important;
+    transform: none !important;
+    max-height: 80vh;
+    overflow: auto;
+    padding: 1em 0.5em;
+    border-radius: 8px;
+  }
+  .litegraph.litecontextmenu.litemenubar-panel * {
+    transform: none !important;
+  }
+  .litegraph .litemenu-entry,
+  .litemenu-title {
+    font-size: 16px;
+  }
+  .comfy-multiline-input:focus {
+    top: 60px !important;
+    left: 10px !important;
+    box-sizing: border-box !important;
+    width: calc(100vw - 20px) !important;
+    padding: 0.5em !important;
+    min-height: 7em !important;
+    height: auto !important;
+    font-size: 16px !important;
+    transform: none !important;
+  }
+}
