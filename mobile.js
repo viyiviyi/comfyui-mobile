@@ -77,21 +77,20 @@ const css = `
 const ext = {
   name: "Mobile",
   async setup() {
-    if (window.outerWidth <= 768) {
-      let zindex = window
-        .getComputedStyle(app.canvas.canvas)
-        .getPropertyValue("z-index");
-      let position = window
-        .getComputedStyle(app.canvas.canvas)
-        .getPropertyValue("position");
-
+    if (window.innerWidth <= 768) {
+      // 设置移动端友好的css
       var style = document.createElement("style");
       style.innerHTML = css;
       document.head.appendChild(style);
-
+      // 设置移动端默认缩放
+      app.canvas.ds.scale = 1.25;
+      // 取消节点搜索功能
+      app.canvas.allow_searchbox = false;
+      // 给节点的输入和输出绑定点击事件，点击时将可连续的节点移动到附近
       for (let node of app.graph._nodes) {
         if (node.inputs && node.inputs.length) {
           node.onInputClick = (i, e) => {
+            console.log(i, e);
             let x = e.canvasX;
             let y = e.canvasY;
             let input = node.inputs[i];
@@ -113,6 +112,7 @@ const ext = {
             });
             let startY = y - h / 2;
             outputNodes.forEach((node) => {
+              node.is_selected = true;
               node._lastPos = node.pos;
               node.pos = [x - 50 - node.size[0], startY];
               startY +=
@@ -137,7 +137,7 @@ const ext = {
                 f.inputs &&
                 f.inputs.length &&
                 f.inputs.findIndex((_f) =>
-                  LiteGraph.isValidConnection(output.type, _.type)
+                  LiteGraph.isValidConnection(output.type, _f.type)
                 ) != -1
             );
             let h = 0;
@@ -149,6 +149,7 @@ const ext = {
             });
             let startY = y - h / 2;
             inputNodes.forEach((node) => {
+              node.is_selected = true;
               node._lastPos = node.pos;
               node.pos = [x + 50, startY];
               startY +=
@@ -166,25 +167,28 @@ const ext = {
         }
       }
 
+      // 获取默认css属性
+      let zindex = window
+        .getComputedStyle(app.canvas.canvas)
+        .getPropertyValue("z-index");
+      let position = window
+        .getComputedStyle(app.canvas.canvas)
+        .getPropertyValue("position");
+      // 手势缩放
       let center = { x: 0, y: 0 };
       let startPos = { x: 0, y: 0 };
+      let startMouse = { x: 0, y: 0 };
       let startLen = 0;
       let scale = 1;
       let longTouch = setTimeout(() => {}, 600);
-      function longTouchAction(pos, e) {
-        var node = app.graph.getNodeOnPos(
-          pos.x,
-          pos.y,
-          app.graph.visible_nodes,
-          5
-        );
-        app.canvas.processContextMenu(node, e);
-      }
       const event = {
         touchend: function (event) {
           // 更新缩放比例
           event.stopPropagation();
           clearTimeout(longTouch);
+          app.canvas.ds.dragging = false;
+          if (!event.targetTouches.length) {
+          }
         },
         touchstart: function (event) {
           event.stopPropagation();
@@ -194,6 +198,10 @@ const ext = {
               y: event.targetTouches[0].screenY,
             };
             scale = app.canvas.ds.scale;
+            startMouse = {
+              x: event.targetTouches[0].clientX,
+              y: event.targetTouches[0].clientY,
+            };
           }
           if (event.targetTouches[1]) {
             clearTimeout(longTouch);
@@ -239,6 +247,7 @@ const ext = {
               if (node._lastPos) {
                 node.pos = node._lastPos;
                 node._lastPos = undefined;
+                node.is_selected = false;
               }
             });
             app.canvas.canvas.style.zIndex = zindex;
@@ -247,8 +256,19 @@ const ext = {
           }, 200);
         },
       };
-      app.canvas.ds.scale = 1.25;
-      app.canvas.allow_searchbox = false;
+      // 长按显示菜单
+      function longTouchAction(pos, e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var node = app.graph.getNodeOnPos(
+          pos.x,
+          pos.y,
+          app.graph.visible_nodes,
+          5
+        );
+        app.canvas.processContextMenu(node, e);
+      }
+      function showImage() {}
       LiteGraph.pointerListenerAdd(
         app.canvas.canvas,
         "down",
@@ -257,13 +277,9 @@ const ext = {
           longTouch = setTimeout(() => {
             longTouchAction({ x: e.canvasX, y: e.canvasY }, e);
           }, 600);
-          if (e.which == 1) {
-            app.canvas.pointer_is_down = false;
-          }
         },
         true
       );
-
       LiteGraph.pointerListenerAdd(document, "up", event.restorePos, true);
       app.canvas.canvas.addEventListener("touchend", event.touchend);
       app.canvas.canvas.addEventListener("touchstart", event.touchstart);
@@ -271,5 +287,4 @@ const ext = {
     }
   },
 };
-
 app.registerExtension(ext);
