@@ -29,11 +29,11 @@ const css = `
     width: 100vw;
     height: 280px;
   }
-  .comfy-menu:hover {
+  .comfy-menu.show {
     bottom: 0 !important;
     transition: bottom 0.5s;
   }
-  .comfy-menu:hover::after {
+  .comfy-menu.show::after {
     height: 0;
     transition: height 0.5s cubic-bezier(1, 0, 1, 0);
   }
@@ -82,6 +82,27 @@ const ext = {
       var style = document.createElement("style");
       style.innerHTML = css;
       document.head.appendChild(style);
+      let menu = document.getElementsByClassName("comfy-menu")[0];
+      document.addEventListener("click", function () {
+        menu.className = menu.className
+          .split(" ")
+          .filter((f) => f != "show")
+          .join(" ");
+      });
+      menu.addEventListener("click", function (e) {
+        e.stopPropagation();
+        menu.className =
+          menu.className
+            .split(" ")
+            .filter((f) => f != "show")
+            .join(" ") + " show";
+        console.log(menu.className);
+      });
+      document
+        .getElementById("queue-button")
+        .addEventListener("click", function (e) {
+          e.stopPropagation();
+        });
       // 设置移动端默认缩放
       app.canvas.ds.scale = 1.25;
       // 取消节点搜索功能
