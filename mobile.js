@@ -16,8 +16,7 @@ const css = `
   }
   .comfy-menu {
     box-sizing: border-box;
-    top: auto !important;
-    bottom: -282px !important;
+    top: calc(100vh - 74px) !important;
     width: 100vw;
     border-radius: 8px 8px 0 0;
   }
@@ -30,8 +29,9 @@ const css = `
     height: 280px;
   }
   .comfy-menu.show {
+    top: auto !important;
     bottom: 0 !important;
-    transition: bottom 0.5s;
+    transition: all 0.5s;
   }
   .comfy-menu.show::after {
     height: 0;
