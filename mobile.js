@@ -262,6 +262,7 @@ const ext = {
           }
         },
         restorePos(e) {
+          e.stopPropagation();
           clearTimeout(longTouch);
           setTimeout(() => {
             app.graph._nodes.forEach((node) => {
@@ -294,6 +295,7 @@ const ext = {
         app.canvas.canvas,
         "down",
         function (e) {
+          e.stopPropagation();
           clearTimeout(longTouch);
           longTouch = setTimeout(() => {
             longTouchAction({ x: e.canvasX, y: e.canvasY }, e);
