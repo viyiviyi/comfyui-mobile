@@ -24,7 +24,7 @@ const css = `
     content: "";
     display: block;
     position: absolute;
-    bottom: 0;
+    top: 100vh !important;
     width: 100vw;
     height: 280px;
   }
@@ -34,6 +34,8 @@ const css = `
     transition: all 0.5s;
   }
   .comfy-menu.show::after {
+    top: auto !important;
+    bottom; 0;
     height: 0;
     transition: height 0.5s cubic-bezier(1, 0, 1, 0);
   }
@@ -96,7 +98,6 @@ const ext = {
             .split(" ")
             .filter((f) => f != "show")
             .join(" ") + " show";
-        console.log(menu.className);
       });
       document
         .getElementById("queue-button")
