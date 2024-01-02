@@ -2,6 +2,10 @@ import { app } from "../../scripts/app.js";
 
 const css = `
 @media screen and (max-width: 768px) {
+import { app } from "../../scripts/app.js";
+
+const css = `
+@media screen and (max-width: 768px) {
   .graphdialog.rounded {
     box-sizing: border-box;
     width: calc(100vw - 20px);
@@ -16,14 +20,21 @@ const css = `
   }
   .comfy-menu {
     box-sizing: border-box;
-    top: calc(100vh - 74px) !important;
+    top: calc(100% - 74px) !important;
     width: 100vw;
     border-radius: 8px 8px 0 0;
+  }
+  .comfy-menu .drag-handle {
+    overflow: visible !important;
+  }
+  #queue-button {
+    margin: 8px 0 !important;
   }
   .comfy-menu::after {
     content: "";
     display: block;
     position: absolute;
+    top: 100vh;
     bottom: 0;
     width: 100vw;
     height: 280px;
@@ -34,6 +45,7 @@ const css = `
     transition: all 0.5s;
   }
   .comfy-menu.show::after {
+    top: auto;
     height: 0;
     transition: height 0.5s cubic-bezier(1, 0, 1, 0);
   }
@@ -97,6 +109,149 @@ const ext = {
             .filter((f) => f != "show")
             .join(" ") + " show";
         console.log(menu.className);
+      });
+      document
+        .getElementById("queue-button")
+        .addEventListener("click", function (e) {
+          e.stopPropagation();
+        });
+      // 设置移动端默认缩放
+      app.canvas.ds.scale = 1.25;
+      // 取消节点搜索功能
+      app.canvas.allow_searchbox = false;
+      // 给节点的输入和输出绑定点击事件，点击时将可连续的节点移动到附近
+      for (let node of app.graph._nodes) {
+        if (node.inputs && node.inputs.length) {
+          node.onInputClick = (i, e) => {
+            console.log(i, e);
+            let x = e.canvasX;
+            let y = e.canvasY;
+            let input = node.inputs[i];
+            let outputNodes = app.graph._nodes.filter(
+              (f) =>
+                f.id != node.id &&
+                f.outputs &&
+                f.outputs.length &&
+                f.outputs.findIndex((_f) =>
+                  LiteGraph.isValidConnection(_f.type, input.type)
+                ) != -1
+            );
+            let h = 0;
+            outputNodes.forEach((node) => {
+              h +=
+                LiteGraph.NODE_TITLE_HEIGHT +
+                node.outputs.length * LiteGraph.NODE_SLOT_HEIGHT +
+                30;
+            });
+            let startY = y - h / 2;
+            outputNodes.forEach((node) => {
+              node.is_selected = true;
+              node._lastPos = node.pos;
+              node.pos = [x - 50 - node.size[0], startY];
+              startY +=
+                LiteGraph.NODE_TITLE_HEIGHT +
+                node.outputs.length * LiteGraph.NODE_SLOT_HEIGHT +
+                30;
+            });
+            zindex = window
+              .getComputedStyle(app.canvas.canvas)
+              .getPropertyValue("z-index");
+            app.canvas.canvas.style.zIndex = "999";
+            app.canvas.canvas.style.position = "relative";
+          };
+        } else if (node.outputs && node.outputs.length) {
+          node.onOutputClick = (i, e) => {
+            let x = e.canvasX;
+            let y = e.canvasY;
+            let output = node.outputs[i];
+            let inputNodes = app.graph._nodes.filter(
+              (f) =>
+                f.id != node.id &&
+                f.inputs &&
+                f.inputs.length &&
+                f.inputs.findIndex((_f) =>
+                  LiteGraph.isValidConnection(output.type, _f.type)
+                ) != -1
+            );
+            let h = 0;
+            inputNodes.forEach((node) => {
+              h +=
+                LiteGraph.NODE_TITLE_HEIGHT +
+                node.outputs.length * LiteGraph.NODE_SLOT_HEIGHT +
+                30;
+            });
+            let startY = y - h / 2;
+            inputNodes.forEach((node) => {
+              node.is_selected = true;
+              node._lastPos = node.pos;
+              node.pos = [x + 50, startY];
+              startY +=
+                LiteGraph.NODE_TITLE_HEIGHT +
+                node.outputs.length * LiteGraph.NODE_SLOT_HEIGHT +
+                30;
+            });
+
+            zindex = window
+              .getComputedStyle(app.canvas.canvas)
+              .getPropertyValue("z-index");
+            app.canvas.canvas.style.zIndex = "999";
+            app.canvas.canvas.style.position = "relative";
+          };
+        }
+      }
+
+      // 获取默认css属性
+      let zindex = window
+        .getComputedStyle(app.canvas.canvas)
+        .getPropertyValue("z-index");
+      let position = window
+        .getComputedStyle(app.canvas.canvas)
+        .getPropertyValue("position");
+      // 手势缩放
+      let center = { x: 0, y: 0 };
+      let startPos = { x: 0, y: 0 };
+      let startMouse = { x: 0, y: 0 };
+      let startLen = 0;
+      let scale = 1;
+      let longTouch = setTimeout(() => {}, 600);
+      const event = {
+        touchend: function (event) {
+          // 更新缩放比例
+          event.stopPropagation();
+          clearTimeout(longTouch);
+          app.canvas.ds.dragging = false;
+          if (!event.targetTouches.length) {
+          }
+        },
+        touchstart: function (event) {
+          event.stopPropagation();
+          if (event.targetTouches.length == 1) {
+            startPos = {
+              x: event.targetTouches[0].screenX,
+              y: event.targetTouches[0].screenY,
+            };
+            scale = app.canvas.ds.scale;
+            startMouse = {
+              x: event.targetTouches[0].clientX,
+              y: event.targetTouches[0].clientY,
+            };
+          }
+          if (event.targetTouches[1]) {
+            clearTimeout(longTouch);
+      let menu = document.getElementsByClassName("comfy-menu")[0];
+      document.addEventListener("click", function () {
+        menu.className = menu.className
+          .split(" ")
+          .filter((f) => f != "show")
+          .join(" ");
+      });
+      menu.addEventListener("click", function (e) {
+        e.stopPropagation();
+        menu.className =
+          menu.className
+            .split(" ")
+            .filter((f) => f != "show")
+            .join(" ") + " show";
       });
       document
         .getElementById("queue-button")
