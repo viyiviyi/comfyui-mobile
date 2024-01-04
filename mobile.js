@@ -14,16 +14,29 @@ const css = `
   .graphdialog.rounded input {
     flex: 1;
   }
+  .comfy-modal-content {
+    overflow: auto !important;
+  }
+  .comfy-modal-content .cm-menu-container {
+    padding-bottom: 35px;
+  }
   .comfy-menu {
     box-sizing: border-box;
-    top: calc(100vh - 74px) !important;
+    top: calc(100% - 74px) !important;
     width: 100vw;
     border-radius: 8px 8px 0 0;
+  }
+  .comfy-menu .drag-handle {
+    overflow: visible !important;
+  }
+  #queue-button {
+    margin: 8px 0 !important;
   }
   .comfy-menu::after {
     content: "";
     display: block;
     position: absolute;
+    top: 100vh;
     bottom: 0;
     width: 100vw;
     height: 280px;
@@ -34,6 +47,7 @@ const css = `
     transition: all 0.5s;
   }
   .comfy-menu.show::after {
+    top: auto;
     height: 0;
     transition: height 0.5s cubic-bezier(1, 0, 1, 0);
   }
